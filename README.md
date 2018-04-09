@@ -39,7 +39,7 @@ This package is provided in these module formats:
 ## Dependencies
 
 - bipbop-webservice
-- bipbop-websocket](https://github.com/bipbop/bipbop-websocket): Connect to bipbop websocket endpoint.
+- [bipbop-websocket](https://github.com/bipbop/bipbop-websocket): Connect to bipbop websocket endpoint.
 
 ## Dev Dependencies
 
