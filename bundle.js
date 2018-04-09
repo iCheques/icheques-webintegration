@@ -1,18 +1,81 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('bipbop-webservice'), require('bipbop-websocket'), require('human-interval')) :
-	typeof define === 'function' && define.amd ? define(['bipbop-webservice', 'bipbop-websocket', 'human-interval'], factory) :
-	(global.ICheques = factory(global.BipbopWebService,global.BipbopWebSocket,global.humanInterval));
-}(this, (function (BIPBOP,WebSocket,humanInterval) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('bipbop-webservice'), require('bipbop-websocket')) :
+	typeof define === 'function' && define.amd ? define(['bipbop-webservice', 'bipbop-websocket'], factory) :
+	(global.ICheques = factory(global.BipbopWebService,global.BipbopWebSocket));
+}(this, (function (BIPBOP,WebSocket) { 'use strict';
 
 BIPBOP = BIPBOP && BIPBOP.hasOwnProperty('default') ? BIPBOP['default'] : BIPBOP;
 WebSocket = WebSocket && WebSocket.hasOwnProperty('default') ? WebSocket['default'] : WebSocket;
-humanInterval = humanInterval && humanInterval.hasOwnProperty('default') ? humanInterval['default'] : humanInterval;
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
+
+var humanInterval_1 = createCommonjsModule(function (module) {
+var humanInterval = module.exports = function humanInterval (time) {
+  if (!time) { return time }
+  if (typeof time === 'number') { return time }
+  time = swapLanguageToDecimals(time);
+  time = time.replace(/(second|minute|hour|day|week|month|year)s?(?! ?(s )?and |s?$)/, '$1,');
+  return time.split(/and|,/).reduce(function (sum, group) {
+    return sum + (group !== '' ? processUnits(group) : 0)
+  }, 0)
+};
+
+humanInterval.languageMap = {
+  'one': 1,
+  'two': 2,
+  'three': 3,
+  'four': 4,
+  'five': 5,
+  'six': 6,
+  'seven': 7,
+  'eight': 8,
+  'nine': 9,
+  'ten': 10
+};
+
+function swapLanguageToDecimals (time) {
+  var language = humanInterval.languageMap;
+  var languageMapRegex = new RegExp('(' + Object.keys(language).join('|') + ')', 'g');
+  var matches = time.match(languageMapRegex);
+  if (!matches) { return time }
+
+  matches.forEach(function (match) {
+    var matchStr = language[match] > 1 ? language[match] : language[match].toString().slice(1);
+    time = time.replace(match, matchStr);
+  });
+  return time
+}
+
+function processUnits (time) {
+  var unit;
+  var num = parseFloat(time, 10);
+  if (time.match(/(second|minute|hour|day|week|month|year)s?/) !== null) { unit = time.match(/(second|minute|hour|day|week|month|year)s?/)[1]; }
+  else { unit = undefined; }
+  if (!num) { num = 1; }
+
+  switch (unit) {
+    case 'second': unit = 1000;
+      break
+    case 'minute': unit = 1000 * 60;
+      break
+    case 'hour': unit = 1000 * 60 * 60;
+      break
+    case 'day': unit = 1000 * 60 * 60 * 24;
+      break
+    case 'week': unit = 1000 * 60 * 60 * 24 * 7;
+      break
+    case 'month': unit = 1000 * 60 * 60 * 24 * 30;
+      break
+    case 'year': unit = 1000 * 60 * 60 * 24 * 365;
+      break
+  }
+  return unit * num
+}
+});
 
 var bundle = createCommonjsModule(function (module, exports) {
 (function (global, factory) {
@@ -631,7 +694,7 @@ var ICheques = function ICheques(apiKey) {
   this.socket = new WebSocket(apiKey, function (e) { return this$1.ee.emit('message', e); });
 };
 
-ICheques.prototype.protestos = function protestos (documento) {
+ICheques.prototype.protestos = function protestos (documento) { /* CCF + CARTÓRIO */
   return this.ws.request("SELECT FROM 'CCBUSCA'.'PROTESTOS'", {
     documento: documento,
   })
@@ -640,7 +703,7 @@ ICheques.prototype.protestos = function protestos (documento) {
     .then(function (objectResponse) { return checkContent(objectResponse); });
 };
 
-ICheques.prototype.pesquisaCadastral = function pesquisaCadastral (documento) {
+ICheques.prototype.pesquisaCadastral = function pesquisaCadastral (documento) { /* TELEFONE + ENDEREÇO */
   return this.ws.request("SELECT FROM 'FINDER'.'CONSULTA'", {
     documento: documento,
   })
@@ -669,7 +732,7 @@ ICheques.prototype.chequeLegal = function chequeLegal (valor, vencimento, userCM
   return this.ws.request("SELECT FROM 'ICHEQUES'.'CHECK'", ( obj = {
     cmc: cmc,
     ammount: Math.ceil(valor * 100),
-    expire: vencimento.getFullYear() + (("0" + (vencimento.getDate()))).slice(-2) + (("0" + (vencimento.getMonth()))).slice(-2)
+    expire: vencimento.getFullYear() + (("0" + (vencimento.getMonth()))).slice(-2) + (("0" + (vencimento.getDate()))).slice(-2)
   }, obj[cpf_cnpj_1.isValid(documento) ? 'cpf' : 'cnpj'] = documento, obj))
     .then(function (response) { return response.text(); })
     .then(function (textResponse) { return BIPBOP.WebService.parse(textResponse); })
@@ -685,11 +748,13 @@ ICheques.prototype.chequeLegal = function chequeLegal (valor, vencimento, userCM
           var data = ref.data;
 
         if (method !== 'ichequeUpdate') { return; }
+        if (!data.situation) { return; }
         if (cmc !== data.cmc) { return; }
         if (timeout) {
           clearTimeout(timeout);
           timeout = null;
         }
+
         resolve(data);
         this$1.ee.off('message', event);
       };
@@ -697,7 +762,9 @@ ICheques.prototype.chequeLegal = function chequeLegal (valor, vencimento, userCM
       timeout = setTimeout(function () {
         this$1.ee.off('message', event);
         reject(new Error(("Não foi possível pesquisar o cheque " + userCMC + " em 3 minutos, tente novamente mais tarde")));
-      }, humanInterval('3 minutes'));
+      }, humanInterval_1('3 minutes'));
+
+      this$1.ee.on('message', event);
     }));
     });
 };
