@@ -11,6 +11,8 @@ Download node at [nodejs.org](http://nodejs.org) and install it, if you haven't 
 npm install icheques-webintegration --save
 ```
 
+## TL;DR ##
+
 ```js
 const ICheques = require('icheques-webintegration');
 
