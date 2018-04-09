@@ -10,6 +10,10 @@
     "bipbop-webservice": "1.0.4",
     "bipbop-websocket": "^1.0.12"
   },
+  "scripts": {
+    "test": "mocha tests/icheques.spec.js",
+    "prepack": "rollup -c"
+  },
   "devDependencies": {
     "cmc7-validador": "1.0.2",
     "cpf_cnpj": "^0.2.0",

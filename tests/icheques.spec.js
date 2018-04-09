@@ -1,6 +1,6 @@
 /* global it, describe */
-
 const ICheques = require('../bundle');
+
 const { apiKey, documento, CMC } = process.env;
 
 
@@ -14,6 +14,7 @@ describe('cadastro na iCheques', function iChequesTest() {
     documento, /* CPF ou CNPJ */
   ).then(data => console.log(data))); /* DADOS DO CHEQUE */
 
-  it('protestos', () => iCheques.protestos(documento).then(data => console.log(data))); /* DADOS DO CPF */  
-  it('pesquisaCadastral', () => iCheques.pesquisaCadastral(documento).then(data => console.log(data))); /* DADOS DO CPF */  
+  it('protestos', () => iCheques.protestos(documento).then(data => console.log(data))); /* DADOS DO CPF */
+  it('pesquisaCadastral', () => iCheques.pesquisaCadastral(documento).then(data => console.log(data))); /* DADOS DO CPF */
 });
+
