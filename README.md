@@ -1,5 +1,4 @@
-# icheques-webintegration@1.0.0
-
+# icheques-webintegration@1.0.1
 
 Integração rápida Java Script para os serviços iCheques.
 

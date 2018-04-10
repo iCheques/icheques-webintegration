@@ -5,7 +5,7 @@ const node = require('rollup-plugin-node-resolve');
 
 module.exports = {
   input: './lib/icheques.js',
-  external: ["bipbop-webservice", "bipbop-websocket"],
+  external: ['bipbop-webservice', 'bipbop-websocket'],
   plugins: [
     node({
       browser: true,
@@ -24,6 +24,6 @@ module.exports = {
     globals: {
       'bipbop-webservice': 'BipbopWebService',
       'bipbop-websocket': 'BipbopWebSocket',
-    }
+    },
   },
 };

@@ -1,8 +1,8 @@
 {
   "name": "icheques-webintegration",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Integração rápida Java Script para os serviços iCheques.",
-  "main": "index.js",
+  "main": "bundle.js",
   "repository": "git@github.com:iCheques/icheques-webintegration.git",
   "author": "Lucas Fernando Amorim <lf.amorim@yahoo.com.br>",
   "license": "MIT",
